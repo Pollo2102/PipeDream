@@ -1,0 +1,5 @@
+Funciones a convertir a ensamblador MIPS32:
+
+set_initial_square
+moveCursor
+countPipes
