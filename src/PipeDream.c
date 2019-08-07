@@ -41,14 +41,14 @@ uint32_t getTime()
     return *counter;
 }
 
-void set_initial_square()
+/* void set_initial_square()
 {
     uint8_t column = generate_rand();
     uint8_t row = generate_rand() & 6;
 
     pipeMap[row][column] = generate_initial_pipe();
     initialPipePosition = &pipeMap[row][column];
-}
+} */
 
 /* 
 0 = |

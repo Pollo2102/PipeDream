@@ -1,6 +1,6 @@
 TARGET=screen.elf
 C_SOURCES=main.c PipeDream.c
-ASM_SOURCES=start.S
+ASM_SOURCES=start.S functions.S
 ASM_OUTPUT=$(TARGET).s
 ASMGEN_SOURCES=$(C_SOURCES:.c=.S)
 OBJ_FILES=$(ASM_SOURCES:.S=.o) $(ASMGEN_SOURCES:.S=.o) ../lib/libtinymips.a

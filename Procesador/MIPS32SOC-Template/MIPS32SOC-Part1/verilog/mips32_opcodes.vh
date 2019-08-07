@@ -1,0 +1,10 @@
+`define MIPS_ADD   6'h20
+`define MIPS_SUB   6'h22
+`define MIPS_AND   6'h24
+`define MIPS_OR    6'h25
+`define MIPS_SLT   6'h2A
+`define MIPS_LW    6'h23
+`define MIPS_SW    6'h2B
+`define MIPS_BEQ   6'h04
+`define MIPS_BNE   6'h05
+`define MIPS_JUMP  6'h02
