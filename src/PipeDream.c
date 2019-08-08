@@ -115,7 +115,7 @@ void end_game()
     puts("GAME OVER!");
 }
 
-void moveCursor(uint8_t input)
+/* void moveCursor(uint8_t input)
 {
     if (input == 1) // left
     {
@@ -161,7 +161,7 @@ void moveCursor(uint8_t input)
     {
         place_pipe();
     }
-}
+} */
 
 uint8_t num_of_pipes = 0;
 
