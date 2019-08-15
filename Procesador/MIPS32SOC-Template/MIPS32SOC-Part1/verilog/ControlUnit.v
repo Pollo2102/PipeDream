@@ -24,7 +24,7 @@ begin
     isBeq = 1'd0;
     isBne = 1'd0;
     rfWriteAddrSel = 1'd0;
-    rfWriteDataSel = 1'd0;
+    rfWriteDataSel = 2'd0;
     rfWriteEnable = 1'd0;
     memWrite = 1'd0;
     memRead = 1'd0;
@@ -66,6 +66,10 @@ begin
                 rfWriteEnable = 1'd1;
                 aluFunc = `ALU_SLT;
             end 
+            default:
+            begin
+                
+            end
         endcase
     end
     else
@@ -73,7 +77,7 @@ begin
         case (opc)
             `MIPS_LW:
             begin
-                rfWriteDataSel = 1'd1;
+                rfWriteDataSel = 2'd1;
                 rfWriteEnable = 1'd1;
                 memRead = 1'd1;
                 aluSrc = 1'd1;
@@ -98,7 +102,11 @@ begin
             `MIPS_JUMP:
             begin
                 isJmp = 1'd1;
-            end        
+            end     
+            default:  
+            begin
+                
+            end
         endcase
     end
 end
