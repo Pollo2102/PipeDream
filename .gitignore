@@ -3,5 +3,6 @@ src/*.o
 src/*.elf*
 src/mem_files
 Procesador/MIPS32SOC-Template/MIPS32SOC-Part1/build
+Procesador/MIPS32SOC-Template/MIPS32SOC-part2/build
 sim/code.mif
 sim/data.mif

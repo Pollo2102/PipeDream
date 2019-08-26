@@ -88,7 +88,7 @@ begin
             begin
                 rfWriteAddrSel = 1'd1;
                 rfWriteEnable = 1'd1;
-                aluFunc = `ALU_SLT;
+                aluFunc = `ALU_SLTU;
             end 
             default:
             begin
@@ -134,7 +134,7 @@ begin
             end
             `MIPS_LUI:
             begin
-                rfWriteAddrSel = 1'b10;
+                rfWriteDataSel = 2'b10;
                 rfWriteEnable = 1'd1;
             end
             `MIPS_SLTI:
@@ -142,14 +142,12 @@ begin
                 rfWriteEnable = 1'd1;
                 aluFunc = `ALU_SLT;
                 aluSrc = 1'd1;
-                bitXtend = 1'd1;
             end 
             `MIPS_SLTIU:
             begin
                 rfWriteEnable = 1'd1;
-                aluFunc = `ALU_SLT;
+                aluFunc = `ALU_SLTU;
                 aluSrc = 1'd1;
-                bitXtend = 1'd1;
             end 
             `MIPS_LW:
             begin

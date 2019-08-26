@@ -24,6 +24,7 @@ module MIPS32SOC (
     wire [31:0] imm32;
     wire [15:0] imm16;
     wire [31:0] memAddr;
+    wire [10:0] PhysicalAddress /* verilator public */;
     wire memWrite;
     wire memRead;
     wire [31:0] memData;
@@ -37,6 +38,8 @@ module MIPS32SOC (
     wire isBne /*verilator public*/;
     wire isZero /*verilator public*/;
     wire bitXtend;
+    wire usingMem = memWrite | memRead;
+    wire memEnable;
     wire invalidOpcode /*verilator public*/;
     wire invalidPC /* verilator public */;
     wire invalidAddr /* verilator public */;
@@ -57,13 +60,13 @@ module MIPS32SOC (
     assign aluOperand2 = aluSrc? imm32 : rfData2; // MUX
     //assign rfWriteData = rfWriteDataSel[0]? memData : aluResult; // MUX
 
-    always @()
+    always @(*)
     begin
       case (rfWriteDataSel)
-        1'b00: rfWriteData = aluResult;
-        1'b01: rfWriteData = memData;
-        1'b10: rfWriteData = {imm16, 16'd0};
-        1'b11: rfWriteData = 32'd0;
+        2'b00: rfWriteData = aluResult;
+        2'b01: rfWriteData = memData;
+        2'b10: rfWriteData = {imm16, 16'd0};
+        2'b11: rfWriteData = 32'd0;
       endcase
     end
 
@@ -73,20 +76,14 @@ module MIPS32SOC (
          * TODO: Compute next PC.  Take into account
          * the JMP, BEQ and BNE instructions
          */
-        if (!isJmp && !isBeq && !isBne)
-          nextPC = pcPlus4;
-        else
-          begin
-            if (isBeq && isZero)
-              nextPC = branchTargetAddr;
-            else if (isBne && !isZero)
-              nextPC = branchTargetAddr;
-            else if (isJmp)
-              nextPC = jmpTarget32;
-            else
-              nextPC = pcPlus4;
-            
-          end
+          if (isBeq && isZero)
+            nextPC = branchTargetAddr;
+          else if (isBne && !isZero)
+            nextPC = branchTargetAddr;
+          else if (isJmp)
+            nextPC = jmpTarget32;
+          else
+            nextPC = pcPlus4;
     end
   
     // PC
@@ -114,17 +111,21 @@ module MIPS32SOC (
     );
 
     // Memory Decoder
-    MemoryDecoder memDecoder (
+    MemDecoder memDecoder (
         .virtualAddr( memAddr ),
+        .usingMemDecoder( usingMem ),
+        .memWrite( memWrite ),
         .physicalAddr( PhysicalAddress ),
-        .invalidAddr( invalidAddr )
+        .memEn( memEnable ),
+        .invAddr( invalidAddr )
     );
+    
 
     // Data Memory
     DataMemory dataMem (
         .addr( PhysicalAddress ),
         .writeData( rfData2 ),
-        .memWrite( memWrite ),
+        .memWrite( memEnable ),
         .clk( clk ),
         .memRead ( memRead ),
         .readData ( memData )

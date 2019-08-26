@@ -18,6 +18,7 @@ module ALU(
             `ALU_AND: res = a & b;
             `ALU_OR : res = a | b;
             `ALU_SLT: res = {31'd0, $signed(a) < $signed(b)};
+            `ALU_SLTU: res = {31'd0, a < b};
             `ALU_XOR: res = a ^ b;
             default:
                     res = 32'hX;
