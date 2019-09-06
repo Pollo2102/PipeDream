@@ -17,7 +17,9 @@ wire [10:0] globalAddress;
 assign globalAddress = virtualAddr[12:2]; 
 
 wire [10:0] stackAddress;
-assign stackAddress = virtualAddr[12:2] + 11'h400;
+//assign stackAddress = virtualAddr[12:2] + 11'h400;
+assign stackAddress = virtualAddr[12:2] + 10'd1;
+
 
 always @(*)
 begin
