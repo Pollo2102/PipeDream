@@ -418,4 +418,13 @@ const uint32_t test_jr_code[] = {
 };
 const int TEST_JR_CODE_SIZE = 6;
 
+// File 'test_io.S'
+const uint32_t test_io_code[] = {
+/*0x00400000: */ 0x8c880000, //lw t0, 0(a0)
+/*0x00400004: */ 0x8c890004, //lw t1, 4(a0)
+/*0x00400008: */ 0x8c8a0008, //lw t2, 8(a0)
+/*0x0040000c: */ 0x08100003, //j 0x40000c
+};
+const int TEST_IO_CODE_SIZE = 4;
+
 /****** Part 4 tests: END *******/

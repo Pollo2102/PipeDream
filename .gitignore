@@ -6,5 +6,8 @@ Procesador/MIPS32SOC-Template/MIPS32SOC-Part1/build
 Procesador/MIPS32SOC-Template/MIPS32SOC-part2/build
 Procesador/MIPS32SOC-Template/MIPS32SOC-part3/build
 Procesador/MIPS32SOC-Template/MIPS32SOC-part4/build
+Procesador/MIPS32SOC-Template/MIPS32SOC-part4/build
+Procesador/MIP32SOC-FinalPart-SupportFiles/mif_samples/
+Procesador/MIP32SOC-FinalPart-SupportFiles/lib/
 sim/code.mif
 sim/data.mif

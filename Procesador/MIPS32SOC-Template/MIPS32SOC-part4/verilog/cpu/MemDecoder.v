@@ -35,7 +35,7 @@ begin
     end
     else
     begin
-        if (virtualAddr < 32'hB800 || (virtualAddr >= 32'hCACF && virtualAddr < 32'h10010000) || (virtualAddr >= 32'h10011000 && virtualAddr < 32'h7FFFEFFC) || (virtualAddr >= 32'h7FFFFFFC))
+        if ((virtualAddr < 32'hB800) || (virtualAddr >= 32'hCACF && virtualAddr < 32'h10010000) || (virtualAddr >= 32'h10011000 && virtualAddr < 32'hFFFF0000) || (virtualAddr >= 32'hFFFF000C && virtualAddr < 32'h7FFFEFFC) || (virtualAddr >= 32'h7FFFFFFC))
             begin
                 invAddr = 1'd1;
                 physAddr = 11'h0;
@@ -55,7 +55,7 @@ begin
                 begin
                     invAddr = 1'd0;
                     physAddr = globalAddress;
-                     memEn = 3'b001;
+                    memEn = 3'b001;
                     memBank = 2'd0;
                 end
                 else if(virtualAddr >= 32'hB800 && virtualAddr < 32'hCACF)
@@ -64,6 +64,27 @@ begin
                     physAddr = VGAAddress;
                     memEn = 3'b010;
                     memBank = 2'd1;
+                end
+                else if(virtualAddr >= 32'hFFFF0000 && virtualAddr < 32'hFFFF000C) //IO
+                begin
+                    invAddr = 0;
+                    physAddr = 0;
+                    memEn = 3'b100;
+                    memBank = 2'd2;
+                end
+                else if(virtualAddr == 32'hFFFF0008)
+                begin
+                    invAddr = 0;
+                    physAddr = 1;
+                    memEn = 3'b100;
+                    memBank = 2'd2;
+                end
+                else
+                begin
+                    invAddr = 1'h0;
+                    physAddr = 11'h0;
+                    memEn = 0;
+                    memBank = 0;
                 end
             end
     end

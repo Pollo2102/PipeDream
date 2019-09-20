@@ -126,22 +126,31 @@ doctest::String toString(const SNum& n) {
     return std::to_string(n.v).c_str();
 }
 
+void oneClockPulse(VMIPS32SOC& m) {
+    m.clk = 1;
+    m.eval();
+    m.clk = 0;
+    m.eval();
+}
+
+void clockPulse(VMIPS32SOC& m) {
+    oneClockPulse(m);
+    oneClockPulse(m);
+}
+
 void reset(VMIPS32SOC& m) {
-    m.reset = 1;
+    /* m.reset = 1;
     m.clk = 0;
     m.eval();
     m.clk = 1;
     m.eval();
     m.clk = 0;
     m.reset = 0;
-    m.eval();
-}
-
-void clockPulse(VMIPS32SOC& m) {
-    m.clk = 1;
-    m.eval();
+    m.eval(); */
+    m.reset = 1;
     m.clk = 0;
-    m.eval();
+    clockPulse(m);
+    m.reset = 0;
 }
 
 void setProgramCode(VMIPS32SOC& m, const uint32_t code[], int size) {
@@ -158,6 +167,13 @@ void randomizeRegisterFile(VMIPS32SOC& m) {
     for (int i = 1; i < 32; i++) {
         m.MIPS32SOC->regFile->memory[i] = dist(re);
     }
+}
+
+// The milliseconds counter uses this function
+static int msCount;
+
+int millis() {
+    return msCount;
 }
 
 TEST_CASE("'add' test") {
@@ -1297,8 +1313,12 @@ TEST_CASE("'invalid stack address' test") {
     setProgramCode(m, test_invalid_stkaddr_code, TEST_INVALID_STKADDR_CODE_SIZE);
     a1 = STACK_BASEADDR;
 
+    std::cout << "Physical address: 0x" << std::hex << m.MIPS32SOC->memAddr << std::endl << std::endl;
     reset(m);
+    std::cout << "Physical address: 0x" << std::hex << m.MIPS32SOC->memAddr << std::endl << std::endl;
     REQUIRE(pc == CODE_BASEADDR);
+    oneClockPulse(m);
+    std::cout << "Physical address: 0x" << std::hex << m.MIPS32SOC->memAddr << std::endl << std::endl;
     REQUIRE(m.MIPS32SOC->invalidAddr == 0);
     clockPulse(m);
     REQUIRE(m.MIPS32SOC->invalidAddr == 0);
@@ -1679,4 +1699,46 @@ TEST_CASE("'reset' test") {
     REQUIRE(pc == CODE_BASEADDR);
     CHECK_ERROR_SIGNALS(m);
     REQUIRE( CHex(t0) == CHex(0xdeadbeef) ); // On reset the register should preserve it's value    
+}
+
+    TEST_CASE("'lw' I/O memory test") {
+    VMIPS32SOC m;
+    DECLARE_MIPS32_REGS(m);
+
+    randomizeRegisterFile(m);
+    a0 = 0xffff0000;
+
+    setProgramCode(m, test_io_code, TEST_IO_CODE_SIZE);
+
+    m.keypad = 0x53;
+    msCount = 0xdeadbeef;
+
+    std::cout << "VAddress: " << std::hex << m.MIPS32SOC->memAddr << std::endl;
+    std::cout << "enable: " << std::hex << (int)m.MIPS32SOC->memEnable << std::endl << std::endl;
+    reset(m);
+    std::cout << "VAddress: " << std::hex << m.MIPS32SOC->memAddr << std::endl;
+    std::cout << std::hex << m.MIPS32SOC->keypadIn << std::endl;
+    std::cout << std::hex << m.MIPS32SOC->keypadOut << std::endl;
+    std::cout << "enable: " << std::hex << (int)m.MIPS32SOC->memEnable << std::endl << std::endl;
+    REQUIRE(pc == CODE_BASEADDR);
+    CHECK_ERROR_SIGNALS(m);
+    REQUIRE(m.MIPS32SOC->invalidAddr == 0);
+    clockPulse(m);
+    std::cout << "VAddress: " << std::hex << m.MIPS32SOC->memAddr << std::endl;
+    std::cout << std::hex << m.MIPS32SOC->keypadIn << std::endl;
+    std::cout << std::hex << m.MIPS32SOC->keypadOut << std::endl;
+    std::cout << "enable: " << std::hex << (int)m.MIPS32SOC->memEnable << std::endl << std::endl;
+    CHECK(t0 == 0);
+    CHECK_ERROR_SIGNALS(m);
+    REQUIRE(m.MIPS32SOC->invalidAddr == 0);
+    clockPulse(m);
+    std::cout << "VAddress: " << std::hex << m.MIPS32SOC->memAddr << std::endl;
+    std::cout << std::hex << m.MIPS32SOC->keypadIn << std::endl;
+    std::cout << std::hex << m.MIPS32SOC->keypadOut << std::endl;
+    std::cout << "enable: " << std::hex << (int)m.MIPS32SOC->memEnable << std::endl << std::endl;
+    CHECK(CHex(t1) == CHex(0x53000000));
+    CHECK_ERROR_SIGNALS(m);
+    REQUIRE(m.MIPS32SOC->invalidAddr == 0);
+    clockPulse(m);
+    CHECK(CHex(t2) == CHex(0xdeadbeef));
 }

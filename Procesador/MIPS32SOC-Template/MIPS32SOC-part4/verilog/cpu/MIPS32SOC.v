@@ -1,17 +1,24 @@
 /* verilator lint_off UNUSED */
 module MIPS32SOC (
-    input vclk,
     input clk, // Clock signal
     input reset,  // Reset signal
+    input [7:0] keypad,
     output [2:0]red,
     output [2:0]green,
     output [1:0]blue,
     output hsync,
-    output vsync
+    output vsync,
+    output invalidPC,
+    output invalidOpc,
+    output invalidAddr
 );
     wire rst = reset;
+    wire fastClk;
+    wire vgaClk;
+    wire slowClk;
+    wire [31:0]counter;
     wire [31:0] inst /*verilator public*/;
-    reg  [31:0] nextPC; // Should be 'reg' because it used in a always block
+    reg  [31:0] nextPC/* verilator public */; // Should be 'reg' because it used in a always block
     reg  [31:0] PC /*verilator public*/; // The PC (Program Counter) register
     wire [9:0] physPC; // Physical PC from the PCDecoder
     wire [31:0] pcPlus4;
@@ -30,7 +37,7 @@ module MIPS32SOC (
     wire [31:0] rfData2 /*verilator public*/;
     wire [31:0] imm32;
     wire [15:0] imm16;
-    wire [31:0] memAddr;
+    wire [31:0] memAddr/* verilator public */;
     wire [10:0] PhysicalAddress /* verilator public */;
     wire memWrite;
     wire memRead;
@@ -53,8 +60,8 @@ module MIPS32SOC (
     wire isJR;
     wire isJAL;
     wire invalidOpcode /*verilator public*/;
-    wire invalidPC /* verilator public */;
-    wire invalidAddr /* verilator public */;
+    // wire invalidPC /* verilator public */;
+    // wire invalidAddr /* verilator public */;
     wire [4:0] raAddr;
     wire [31:0] decodedMemData;
     wire [4:0 ]shamt;
@@ -63,8 +70,12 @@ module MIPS32SOC (
     wire [31:0] aluOp1/* verilator public */;
     wire branchTaken;
     wire [2:0] branch;
+    wire [31:0] keypadOut /* verilator public */;
+    wire [31:0]keypadIn /* verilator public */;
 
   
+    assign keypadIn = {keypad, 24'd0};
+    assign invalidOpc = invalidOpcode;
     assign raAddr = (isJAL) ? 5'd31 : rfWriteAddr;
     assign rfWEnable = rst ? 1'd0 : rfWriteEnable;
     assign func = inst[5:0];
@@ -111,7 +122,11 @@ module MIPS32SOC (
          * TODO: Compute next PC.  Take into account
          * the JMP, BEQ and BNE instructions
          */
-          if (branchTaken)
+          /* if (invalidAddr)
+            nextPC = PC;
+          else */ if (rst)
+            nextPC = 32'h400000;
+          else if (branchTaken)
             nextPC = branchTargetAddr;
           else if (isJmp || isJAL)
             nextPC = jmpTarget32;
@@ -122,7 +137,7 @@ module MIPS32SOC (
     end
   
     // PC
-    always @ (posedge clk) begin
+    always @ (posedge slowClk) begin
         if (rst)
             PC <= 32'h400000;
         else if (invalidOpcode || invalidPC || invalidAddr)
@@ -133,13 +148,14 @@ module MIPS32SOC (
 
     //PCDecoder
     PCDecoder PCDec (
-        .VirtualPC( PC ),
+        .VirtualPC( nextPC ),
         .PhysicalPC( physPC ),
         .InvalidPC( invalidPC )
     );
   
     // Instruction Memory
     InstMemory instMem (
+        .clk( slowClk ),
         .addr( physPC ),
         .en( 1'b1 ),
         .readData( inst )
@@ -165,7 +181,7 @@ module MIPS32SOC (
       case (memBank)
         2'b00: memData = memData1;
         2'b01: memData = memData2;
-        2'b10: memData = 32'd0;
+        2'b10: memData = keypadOut;
         2'b11: memData = 32'd0;
       endcase
     end
@@ -182,7 +198,7 @@ module MIPS32SOC (
 
     // Data Memory
     DataMemory dataMem (
-        .clk( clk ),
+        .clk( fastClk ),
         .en( memEnable[0] ),
         .memWrite( encMW ),
         .addr( PhysicalAddress ),
@@ -208,7 +224,7 @@ module MIPS32SOC (
         .wa( raAddr ),
         .wd( rfWriteData ),
         .we( rfWEnable ),
-        .clk( clk ),
+        .clk( slowClk ),
         .rd1( rfData1 ),
         .rd2( rfData2 )
     );
@@ -263,8 +279,8 @@ module MIPS32SOC (
   );
 
   VGATextCard vgaTextCard(
-    .vclk( clk ), // Change
-    .clk( clk ), // Change
+    .vclk( vgaClk ),
+    .clk( fastClk ), // Verify
     .reset( rst ), 
     .en( memEnable[1] ), 
     .memWrite( encMW ), 
@@ -276,5 +292,25 @@ module MIPS32SOC (
     .blue( blue ), 
     .hsync( hsync ),  
     .vsync( vsync )
+  );
+
+  ClockGenerator clockGenerator(
+    .clkIn( clk ),
+    .fastClk( fastClk ),
+    .vgaClk( vgaClk ),
+    .slowClk( slowClk )
+  );
+
+  MillisCounter millisCounter(
+    .clk( fastClk ),
+    .reset( rst ),
+    .counter( counter )
+  );
+
+  IOModule iomodule(
+    .keypadIn( keypadIn ),
+    .addr( PhysicalAddress[0] ),
+    .en( memEnable[2] ),
+    .keypadOut( keypadOut )
   );
 endmodule

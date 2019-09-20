@@ -9,7 +9,6 @@ module DataMemory(
  
     reg [31:0] memory[0:2047] /*verilator public*/;
    
-    assign rdata = en? memory[addr] : 32'hz;
  
     always @(posedge clk)
     begin
@@ -18,6 +17,8 @@ module DataMemory(
             if (memWrite[2]) memory[addr][15:8] <= wdata[15:8];
             if (memWrite[1]) memory[addr][23:16] <= wdata[23:16];
             if (memWrite[0]) memory[addr][31:24] <= wdata[31:24];
+
+            rdata = en? memory[addr] : 32'hz;
         end
     end
  

@@ -12,7 +12,6 @@ module DualPortVGARam (
 
     reg [31:0] memory [0:2047] /*verilator public*/;
 
-    assign rda = enablea? memory[addra] : 32'hz;
 
     always @ (posedge clka)
     begin
@@ -21,6 +20,7 @@ module DualPortVGARam (
             if (wea[2]) memory[addra][15:8] <= wda[15:8];
             if (wea[1]) memory[addra][23:16] <= wda[23:16];
             if (wea[0]) memory[addra][31:24] <= wda[31:24];
+            rda = enablea? memory[addra] : 32'hz;
         end
     end
 
