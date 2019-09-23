@@ -1,12 +1,12 @@
 module PCDecoder(
     input [31:0] VirtualPC,
-    output [10:0] PhysicalPC,
-    output InvalidPC
+    output reg [10:0] PhysicalPC,
+    output reg InvalidPC
 );
 
 always @(*)
 begin
-    if (VirtualPC < 32'h400000 || VirtualPC >= 32'h401000)
+    if (VirtualPC < 32'h400000 || VirtualPC >= 32'h402000)
     begin
         InvalidPC = 1'd1;
         PhysicalPC = 11'hx;

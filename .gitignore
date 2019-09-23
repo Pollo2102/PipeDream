@@ -11,3 +11,5 @@ Procesador/MIP32SOC-FinalPart-SupportFiles/mif_samples/
 Procesador/MIP32SOC-FinalPart-SupportFiles/lib/
 sim/code.mif
 sim/data.mif
+src/build-sim
+src/xilinx/project/*

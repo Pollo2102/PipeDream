@@ -12,6 +12,8 @@ module MIPS32SOC (
     output invalidOpc,
     output invalidAddr
 );
+    wire reset;
+    wire [7:0]keypad;
 
     `ifdef SYNTHESIS
       assign reset = ~resetIn;
@@ -21,16 +23,15 @@ module MIPS32SOC (
       assign keypad = keypadIn;
     `endif
 
-    wire reset;
-    wire keypad;
     wire fastClk;
     wire vgaClk;
     wire slowClk;
+    wire [1:0] memBank;
     wire [31:0]counter;
     wire [31:0] inst /*verilator public*/;
     reg  [31:0] nextPC/* verilator public */; // Should be 'reg' because it used in a always block
     reg  [31:0] PC /*verilator public*/; // The PC (Program Counter) register
-    wire [9:0] physPC; // Physical PC from the PCDecoder
+    wire [10:0] physPC; // Physical PC from the PCDecoder
     wire [31:0] pcPlus4;
     wire [5:0] func;
     wire [4:0] rd /*verilator public*/;
@@ -183,7 +184,6 @@ module MIPS32SOC (
         .invAddr( invalidAddr )
     );
 
-    wire [1:0] memBank;
     wire [31:0] memData1;
     wire [31:0] memData2 /* verilator public */;
 
@@ -314,8 +314,8 @@ module MIPS32SOC (
 
   MillisCounter millisCounter(
     .clk( fastClk ),
-    .counter( counter )
-    .reset( reset ),
+    .counter( counter ),
+    .reset( reset )
   );
 
   IOModule iomodule(
