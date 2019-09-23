@@ -199,7 +199,7 @@ module MIPS32SOC (
 
     MemWriteDataEncoder memWDataEnc(
         .inData( rfData2 ),
-        .offset( imm32[1:0] ),
+        .offset( aluResult[1:0] ),
         .memWrite( memWrite ),
         .dataSize( memDataSize ),
         .outData( decodedData ),
@@ -220,7 +220,7 @@ module MIPS32SOC (
 
     MemReadDataDecoder memRDataDec(
         .inData( memData ),
-        .offset( imm32[1:0] ),
+        .offset( aluResult[1:0] ),
         .bitExt( memBitExt ),
         .dataSize( memDataSize ),
         .outData( decodedMemData )
