@@ -8,7 +8,7 @@ module InstMemory (
 
   always @(posedge clk)
   begin
-    readData = en? memory[addr] : 32'hz;
+    readData <= en? memory[addr] : 32'h0;
   end
   
   initial begin

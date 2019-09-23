@@ -30,7 +30,7 @@ module DualPortVGARam (
             if (wea[2]) memory[addra][15:8] <= wda[15:8];
             if (wea[1]) memory[addra][23:16] <= wda[23:16];
             if (wea[0]) memory[addra][31:24] <= wda[31:24];
-            rda = enablea? memory[addra] : 32'hz;
+            rda <= memory[addra];
         end
     end
 

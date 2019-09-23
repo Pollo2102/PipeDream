@@ -18,7 +18,7 @@ module DataMemory(
             if (memWrite[1]) memory[addr][23:16] <= wdata[23:16];
             if (memWrite[0]) memory[addr][31:24] <= wdata[31:24];
 
-            rdata = en? memory[addr] : 32'hz;
+            rdata <= memory[addr];
         end
     end
  

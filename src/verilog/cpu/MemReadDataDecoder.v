@@ -45,6 +45,10 @@ begin
             outData = (bitExt) ? {24'd0, inData[7:0]} : {{24{inData[7]}}, inData[7:0]};
         end
     end
+    else
+    begin
+        outData = 32'h0;
+    end
 end
 
 endmodule

@@ -23,6 +23,8 @@ module RegisterFile(
     begin
         if (we && (wa != 5'd0))
             memory[wa] <= wd;
+        else
+            memory[wa] <= memory[wa];
     end
 
     initial begin

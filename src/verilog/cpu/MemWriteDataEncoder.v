@@ -61,6 +61,11 @@ begin
                 encMW = 4'b1000;
             end
         end
+        else
+        begin
+            outData = 32'h0;
+            encMW = 4'b0000;
+        end
     end
 end
 
